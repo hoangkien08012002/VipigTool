@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,17 +11,49 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OpenQA.Selenium.DevTools.V131.FileSystem;
+using File = System.IO.File;
+using System.Text.RegularExpressions;
 
 namespace ToolVipig
 {
     public partial class Form1 : Form
     {
         bool run = true;
+        string file_account_path = "account.txt";
         public Form1()
         {
             InitializeComponent();
             dgv.AllowUserToResizeColumns = false;
+            AutoFillInputFromFIle();
+
         }
+
+
+        // tự động điền các trường input trong form tool 
+        void AutoFillInputFromFIle()
+        {
+
+            if (File.Exists(file_account_path))
+            {
+                // lấy dữ liệu từ file
+                string data_acc = File.ReadAllText(file_account_path);
+
+                //kiểm tra file có dữ liệu không
+                if (!string.IsNullOrEmpty(data_acc))
+                {
+                    txtUserName_Vipig.Text = Regex.Match(data_acc, "user_vipig=(.*?);").Groups[1].Value;
+                    txtPassword_Vipig.Text = Regex.Match(data_acc, "pass_vipig=(.*?);").Groups[1].Value;
+                    txtUsername_Instagram.Text = Regex.Match(data_acc, "user_insta=(.*?);").Groups[1].Value;
+                    txtPassword_insta.Text = Regex.Match(data_acc, "pass_insta=(.*?);").Groups[1].Value;
+                }
+            }
+            else
+            {
+                File.Create(file_account_path);
+            }
+        }
+
 
         private void btnStop_Click(object sender, EventArgs e)
         {
@@ -77,7 +110,7 @@ namespace ToolVipig
                         try
                         {
                             var alert = driverVipig.SwitchTo().Alert();
-                            //xuất ra chữ trong thông   báo
+                            //xuất ra chữ trong thông báo
                             string texter = alert.Text;
                             //nhấp vào nút ok trong alert
                             alert.Accept();
@@ -95,15 +128,31 @@ namespace ToolVipig
                             //set info
                             this.Invoke(new Action(() =>
                             {
-                               
                                 //set username
                                 my_username.Text = driverVipig.FindElement(By.XPath("/html/body/div/div/div[1]/h2/i")).Text;
                                 //set balance
                                 my_coin.Text = driverVipig.FindElement(By.Id("soduchinh")).Text + " VNĐ";
 
                             }));
-                        }
 
+                            // Instagram Login
+                            ChromeDriver driverIns = OpenChrome("https://www.instagram.com/");
+                            delay(2);
+                            //gửi username cho insta
+                            driverIns.FindElement(By.Name("username")).SendKeys(usernameInsta);
+                            //gửi username cho insta
+                            driverIns.FindElement(By.Name("password")).SendKeys(passwprdInsta);
+                            delay(2);
+                            driverIns.FindElement(By
+                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/div[1]/div[3]/button")).Click() ;
+                            
+                            delay(2);
+
+                            // click nút "lúc khác"
+                            driverIns.FindElement(By
+                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div/div")).Click();
+
+                        }
                     }
                     else
                     {
@@ -117,7 +166,6 @@ namespace ToolVipig
             {
                 showError("Vui lòng nhập đầy đủ dữ liệu");
             }
-
         }
 
         //Show thông báo lỗi
@@ -140,7 +188,6 @@ namespace ToolVipig
             try
             {
                 service = ChromeDriverService.CreateDefaultService();
-
                 //service.HideCommandPromptWindow = true;
             }
             catch
@@ -158,12 +205,9 @@ namespace ToolVipig
             {
                 return null;
             }
-
-
             return drive;
-
-
         }
+
         //hàm sleep
         void delay(int s)
         {
