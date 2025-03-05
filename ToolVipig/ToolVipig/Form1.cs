@@ -21,6 +21,8 @@ namespace ToolVipig
     {
         bool run = true;
         string file_account_path = "account.txt";
+        ChromeDriver driverInstagram;
+        ChromeDriver driverVipig;
         public Form1()
         {
             InitializeComponent();
@@ -76,45 +78,45 @@ namespace ToolVipig
             {
                 Thread t = new Thread(() =>
                 {
-                    ChromeDriver driverVipig = OpenChrome("https://vipig.net/index.php");
-                    if (driverVipig != null)
+                    ChromeDriver driver_vipig = OpenChrome("https://vipig.net/index.php");
+                    if (driver_vipig != null)
                     {
                         delay(2);
                         // click button ddongs
-                        driverVipig.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div/div/div[3]/div/button")).Click();
+                        driver_vipig.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div/div/div[3]/div/button")).Click();
 
                         delay(1);
                         //Username
                         // xóa hết dữ liệu trong ô
-                        driverVipig.FindElement(By.Name("username")).Clear();
+                        driver_vipig.FindElement(By.Name("username")).Clear();
                         // tiến hành nhập dữ liệu mới
-                        //driverVipig.FindElement(By.Name("username")).SendKeys(usernameVipig);
+                        //driver_vipig.FindElement(By.Name("username")).SendKeys(usernameVipig);
                         char[] arrayuser = usernameVipig.ToCharArray();
                         foreach (char c in arrayuser)
                         {
-                            driverVipig.FindElement(By.Name("username")).SendKeys(c.ToString());
+                            driver_vipig.FindElement(By.Name("username")).SendKeys(c.ToString());
                             Thread.Sleep(100); //  500ms điền 1 ký ký tự
                         }
 
                         //Password
                         // xóa hết dữ liệu trong ô
-                        driverVipig.FindElement(By.Name("password")).Clear();
+                        driver_vipig.FindElement(By.Name("password")).Clear();
                         // tiến hành nhập dữ liệu mới
-                        driverVipig.FindElement(By.Name("password")).SendKeys(passwordVipig);
+                        driver_vipig.FindElement(By.Name("password")).SendKeys(passwordVipig);
 
                         //click button login
-                        driverVipig.FindElement(By.Name("submit")).Click();
+                        driver_vipig.FindElement(By.Name("submit")).Click();
                         delay(2);
                         bool isLogin = false;
                         try
                         {
-                            var alert = driverVipig.SwitchTo().Alert();
+                            var alert = driver_vipig.SwitchTo().Alert();
                             //xuất ra chữ trong thông báo
                             string texter = alert.Text;
                             //nhấp vào nút ok trong alert
                             alert.Accept();
                             //tắt trình duyệt
-                            driverVipig.Quit();
+                            driver_vipig.Quit();
                             //show messege ra mà hình
                             showError(texter);
                         }
@@ -128,28 +130,77 @@ namespace ToolVipig
                             this.Invoke(new Action(() =>
                             {
                                 //set username
-                                my_username.Text = driverVipig.FindElement(By.XPath("/html/body/div/div/div[1]/h2/i")).Text;
+                                my_username.Text = driver_vipig.FindElement(By.XPath("/html/body/div/div/div[1]/h2/i")).Text;
                                 //set balance
-                                my_coin.Text = driverVipig.FindElement(By.Id("soduchinh")).Text + " VNĐ";
+                                my_coin.Text = driver_vipig.FindElement(By.Id("soduchinh")).Text + " VNĐ";
 
                             }));
 
                             // Instagram Login
-                            ChromeDriver driverIns = OpenChrome("https://www.instagram.com/");
+                            ChromeDriver driver_ins = OpenChrome("https://www.instagram.com/");
                             delay(2);
                             //gửi username cho insta
-                            driverIns.FindElement(By.Name("username")).SendKeys(usernameInsta);
+                            driver_ins.FindElement(By.Name("username")).SendKeys(usernameInsta);
                             //gửi username cho insta
-                            driverIns.FindElement(By.Name("password")).SendKeys(passwprdInsta);
+                            driver_ins.FindElement(By.Name("password")).SendKeys(passwprdInsta);
                             delay(2);
-                            driverIns.FindElement(By
-                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/div[1]/div[3]/button")).Click() ;
-                            
+                            driver_ins.FindElement(By
+                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/div[1]/div[3]/button")).Click();
+
                             delay(2);
 
-                            // click nút "lúc khác"
-                            driverIns.FindElement(By
-                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div/div")).Click();
+                            if (check(driver_ins, By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div")))
+                            {
+                                // click nút "lúc khác"(not now)
+                                driver_ins.FindElement(By
+                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div")).Click();
+                            }
+                            else
+                            {
+                                if (check(driver_ins, By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/span/div")))
+                                {
+                                    showError(driver_ins.FindElement(By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/span/div")).Text);
+                                    driver_ins.Quit();
+                                    driver_vipig.Quit();
+                                    return;
+                                }
+
+                            }
+                            // kiểm tra nếu bấm nút stop sẽ dừng 
+                            if (!run)
+                            {
+                                driver_vipig.Quit();
+                                driver_ins.Quit();
+                                return;
+                            }
+                            driverInstagram = driver_ins;
+                            driverVipig = driver_vipig;
+                            while (run)
+                            {
+                                if (!run)
+                                {
+                                    driver_vipig.Quit();
+                                    driver_ins.Quit();
+                                    return;
+                                }
+
+                                var random = new Random();
+                                int rand = random.Next(1, 3);
+                                if (rand == 1)
+                                {
+                                    //like
+                                }
+                                else if (rand == 2)
+                                {
+                                    //follow
+                                }
+                                else if (rand == 3)
+                                {
+                                    //comment
+                                }
+                            }
+
+
 
                         }
                     }
@@ -213,6 +264,51 @@ namespace ToolVipig
             Thread.Sleep(TimeSpan.FromSeconds(s));
         }
 
+        //check element tồn tại
+        bool check(ChromeDriver driver, By by)
+        {
+            try
+            {
+                driver.FindElement(by);
+                return true;
+            }
+            catch
+            {
+                return false;
+
+            }
+        }
+
+        // Like
+        public void start_like()
+        {
+            driverVipig.Url = "https://vipig.net/kiemtien/";
+            driverVipig.Navigate();
+            delay(1);
+
+            var all_job = driverVipig.FindElement(By.Id("dspost")).FindElements(By.TagName("button"));
+            foreach (var job in all_job)
+            {
+                job.Click();
+                // lấy ra url
+                string url = job.GetAttribute("title").Replace("'","");// bỏ dấu ' đi nếu có
+                driverInstagram.Url = url;
+                driverInstagram.Navigate();
+                delay(2);
+
+                try
+                {
+                    driverInstagram.FindElements(By.ClassName("xp7jhwk"))[1].Click();
+                }
+                catch
+                {
+
+                }
+                // next sang tab vừa mở và close
+                driverVipig.SwitchTo().Window(driverVipig.WindowHandles.Last());
+                driverVipig.Close();
+            }
+        }
         private void label4_Click(object sender, EventArgs e)
         {
 
