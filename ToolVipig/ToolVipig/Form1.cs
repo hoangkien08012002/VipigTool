@@ -83,7 +83,6 @@ namespace ToolVipig
                         // click button ddongs
                         driverVipig.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div/div/div[3]/div/button")).Click();
 
-
                         delay(1);
                         //Username
                         // xóa hết dữ liệu trong ô
@@ -197,7 +196,7 @@ namespace ToolVipig
             ChromeDriver drive = new ChromeDriver(service, option);
             try
             {
-                // vào url đã truyền vào và trả lại drive
+
                 drive.Url = url;
                 drive.Navigate();
             }
