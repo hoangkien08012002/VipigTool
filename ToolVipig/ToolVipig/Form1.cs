@@ -185,9 +185,11 @@ namespace ToolVipig
                                 }
 
                                 var random = new Random();
-                                int rand = random.Next(1, 3);
+                                // int rand = random.Next(1, 3);
+                                int rand = 1;
                                 if (rand == 1)
                                 {
+                                    start_like();
                                     //like
                                 }
                                 else if (rand == 2)
@@ -199,9 +201,6 @@ namespace ToolVipig
                                     //comment
                                 }
                             }
-
-
-
                         }
                     }
                     else
@@ -287,26 +286,52 @@ namespace ToolVipig
             delay(1);
 
             var all_job = driverVipig.FindElement(By.Id("dspost")).FindElements(By.TagName("button"));
+            int tab = 0;
             foreach (var job in all_job)
             {
-                job.Click();
+                dgv.Invoke(new Action( () =>
+                {
+
+                }));
+               if (!run)
+                {
+                    driverVipig.Quit();
+                    driverInstagram.Quit();
+                    return;
+                }
                 // lấy ra url
                 string url = job.GetAttribute("title").Replace("'","");// bỏ dấu ' đi nếu có
+                job.Click();
+
                 driverInstagram.Url = url;
                 driverInstagram.Navigate();
                 delay(2);
-
+                
                 try
                 {
                     driverInstagram.FindElements(By.ClassName("xp7jhwk"))[1].Click();
                 }
                 catch
                 {
-
                 }
                 // next sang tab vừa mở và close
                 driverVipig.SwitchTo().Window(driverVipig.WindowHandles.Last());
                 driverVipig.Close();
+                delay(1);
+                // quay lại cửa sổ đầu tiên
+                driverVipig.SwitchTo().Window(driverVipig.WindowHandles.First());
+                delay(3);
+                string id = url.Substring(28).Trim();
+
+                IJavaScriptExecutor java = driverVipig;
+                java.ExecuteScript("document.getElementsByClassName('btn-success')[0].click()");
+
+                if (!run)
+                {
+                    driverVipig.Quit();
+                    driverInstagram.Quit();
+                    return;
+                }
             }
         }
         private void label4_Click(object sender, EventArgs e)
