@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using OpenQA.Selenium.DevTools.V131.FileSystem;
 using File = System.IO.File;
 using System.Text.RegularExpressions;
+using OpenQA.Selenium.Support.UI;
 
 namespace ToolVipig
 {
@@ -95,7 +96,7 @@ namespace ToolVipig
                         foreach (char c in arrayuser)
                         {
                             driver_vipig.FindElement(By.Name("username")).SendKeys(c.ToString());
-                            Thread.Sleep(100); //  500ms điền 1 ký ký tự
+                            Thread.Sleep(50); //  500ms điền 1 ký ký tự
                         }
 
                         //Password
@@ -137,50 +138,50 @@ namespace ToolVipig
                             }));
 
                             // Instagram Login
-                            ChromeDriver driver_ins = OpenChrome("https://www.instagram.com/");
-                            delay(2);
-                            //gửi username cho insta
-                            driver_ins.FindElement(By.Name("username")).SendKeys(usernameInsta);
-                            //gửi username cho insta
-                            driver_ins.FindElement(By.Name("password")).SendKeys(passwprdInsta);
-                            delay(2);
-                            driver_ins.FindElement(By
-                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/div[1]/div[3]/button")).Click();
+                            //ChromeDriver driver_ins = OpenChrome("https://www.instagram.com/");
+                            //delay(2);
+                            ////gửi username cho insta
+                            //driver_ins.FindElement(By.Name("username")).SendKeys(usernameInsta);
+                            ////gửi pass cho insta
+                            //driver_ins.FindElement(By.Name("password")).SendKeys(passwprdInsta);
+                            //delay(2);
+                            //driver_ins.FindElement(By
+                            //    .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/div[1]/div[3]/button")).Click();
 
-                            delay(2);
+                            //delay(5);
 
-                            if (check(driver_ins, By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div")))
-                            {
-                                // click nút "lúc khác"(not now)
-                                driver_ins.FindElement(By
-                                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div")).Click();
-                            }
-                            else
-                            {
-                                if (check(driver_ins, By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/span/div")))
-                                {
-                                    showError(driver_ins.FindElement(By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/span/div")).Text);
-                                    driver_ins.Quit();
-                                    driver_vipig.Quit();
-                                    return;
-                                }
+                            //if (check(driver_ins, By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div")))
+                            //{
+                            //    // click nút "lúc khác"(not now)
+                            //    driver_ins.FindElement(By
+                            //    .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div/div")).Click();
+                            //}
+                            //else
+                            //{
+                            //    if (check(driver_ins, By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/span/div")))
+                            //    {
+                            //        showError(driver_ins.FindElement(By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/span/div")).Text);
+                            //        driver_ins.Quit();
+                            //        driver_vipig.Quit();
+                            //        return;
+                            //    }
 
-                            }
+                            //}
                             // kiểm tra nếu bấm nút stop sẽ dừng 
                             if (!run)
                             {
                                 driver_vipig.Quit();
-                                driver_ins.Quit();
+                                //driver_ins.Quit();
                                 return;
                             }
-                            driverInstagram = driver_ins;
+                            //driverInstagram = driver_ins;
                             driverVipig = driver_vipig;
                             while (run)
                             {
                                 if (!run)
                                 {
                                     driver_vipig.Quit();
-                                    driver_ins.Quit();
+                                    //driver_ins.Quit();
                                     return;
                                 }
 
@@ -189,7 +190,7 @@ namespace ToolVipig
                                 int rand = 1;
                                 if (rand == 1)
                                 {
-                                    start_like();
+                                    start_like(usernameInsta, passwprdInsta);
                                     //like
                                 }
                                 else if (rand == 2)
@@ -279,11 +280,37 @@ namespace ToolVipig
         }
 
         // Like
-        public void start_like()
+        public void start_like(string usernameInsta, string passwprdInsta)
         {
             driverVipig.Url = "https://vipig.net/kiemtien/";
             driverVipig.Navigate();
             delay(1);
+
+            /////////////////
+            // Mở tab mới cho Instagram
+            ((IJavaScriptExecutor)driverVipig).ExecuteScript("window.open('https://www.instagram.com/', '_blank');");
+            delay(4);
+
+            // chuyển sang tab vừa mở
+            driverVipig.SwitchTo().Window(driverVipig.WindowHandles.Last());
+
+            //gửi username cho insta
+            driverVipig.FindElement(By.Name("username")).SendKeys(usernameInsta);
+ 
+            //gửi pass cho insta
+            driverVipig.FindElement(By.Name("password")).SendKeys(passwprdInsta);
+            
+            driverVipig.FindElement(By
+                .XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/article/div[2]/div[1]/div[2]/div/form/div[1]/div[3]/button")).Click();
+            delay(7);
+
+
+            driverVipig.Close();
+            delay(1);
+            // quay lại cửa sổ đầu tiên
+            driverVipig.SwitchTo().Window(driverVipig.WindowHandles.First());
+            ////////////////////////
+            delay(4);
 
             var all_job = driverVipig.FindElement(By.Id("dspost")).FindElements(By.TagName("button"));
             int tab = 0;
@@ -303,13 +330,28 @@ namespace ToolVipig
                 string url = job.GetAttribute("title").Replace("'","");// bỏ dấu ' đi nếu có
                 job.Click();
 
-                driverInstagram.Url = url;
-                driverInstagram.Navigate();
-                delay(2);
-                
+                //driverInstagram.Url = url;
+                //driverInstagram.Navigate();
+                //delay(2);
+                delay(7);
                 try
                 {
-                    driverInstagram.FindElements(By.ClassName("xp7jhwk"))[1].Click();
+                    driverVipig.SwitchTo().Window(driverVipig.WindowHandles.Last());
+                    // var elements = driverVipig.FindElements(By.CssSelector(".x1i10hfl.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.x6s0dn4.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x1ypdohk.x78zum5.xl56j7k.x1y1aw1k.x1sxyh0.xwib8y2.xurb0ha.xcdnw81"));
+                    //var elements = driverVipig.FindElements(By.XPath("/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div[1]/div/div[2]/div/div[3]/section[1]/div[1]/span[1]/div/div/div"));
+
+                    IJavaScriptExecutor js = (IJavaScriptExecutor)driverVipig;
+                    js.ExecuteScript("document.querySelector('.x1i10hfl.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.x6s0dn4.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x1ypdohk.x78zum5.xl56j7k.x1y1aw1k.x1sxyh0.xwib8y2.xurb0ha.xcdnw81')?.click();");
+                    //if (elements.Count > 0)
+                    //{
+                    //    elements[0].Click();
+                    //}
+                    //else
+                    //{
+                    //    showError("Không tìm thấy phần tử có class 'x1ahuga'.");
+                    //}
+
+                    //driverVipig.FindElements(By.ClassName("x1ahuga"))[1].Click();
                 }
                 catch
                 {
@@ -332,6 +374,14 @@ namespace ToolVipig
                     driverInstagram.Quit();
                     return;
                 }
+                this.Invoke(new Action(() =>
+                {
+                    //set username
+                  
+                    //set balance
+                    my_coin.Text = driverVipig.FindElement(By.Id("soduchinh")).Text + " VNĐ";
+
+                }));
             }
         }
         private void label4_Click(object sender, EventArgs e)
